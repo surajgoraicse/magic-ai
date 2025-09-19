@@ -1,69 +1,35 @@
-# React + TypeScript + Vite
+# Project Description  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**LinkedIn AI Comment Assistant** is a Chrome extension built with **Vite, React, and CRXJS** that helps professionals write engaging comments and replies on LinkedIn posts.  
 
-Currently, two official plugins are available:
+The extension integrates with **Google Gemini API** to generate smart, context-aware comments based on the content of a LinkedIn post or another user’s comment. Users can select from different writing styles—**formal, informal, short, or cool**—to match the tone they want to convey.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Key Features  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 🔍 **Context-aware AI** – Extracts captions or comments from LinkedIn posts.  
+- 🎨 **Multiple styles** – Generate comments in *formal, informal, short, or cool* tones.  
+- ⚡ **One-click generation** – Quickly generate and insert responses directly into LinkedIn’s comment box.  
+- 🔑 **API integration** – Uses Gemini API for natural and high-quality responses.  
+- ⚙️ **Custom settings** – Save API key and preferred style with Chrome Storage.  
+- 🖥️ **Modern stack** – Built using Vite, React, TypeScript, and CRXJS for fast development and modular structure.  
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🔹 How It Works  
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. **Detect** – The extension identifies LinkedIn posts and comment boxes.  
+2. **Generate** – Sends the text to Gemini API along with the user’s chosen style.  
+3. **Preview** – Shows the generated comment inside the popup before posting.  
+4. **Insert** – Automatically inserts the AI-generated text into the LinkedIn comment field.  
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🔹 Tech Stack  
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Frontend/UI**: React + Tailwind (Popup interface)  
+- **Extension Framework**: CRXJS + Vite + TypeScript  
+- **AI Integration**: Google Gemini API  
+- **Storage**: Chrome Storage API (to save user settings)  
+- **Scripts**: Content scripts for LinkedIn DOM interaction, Background service worker for API handling  
