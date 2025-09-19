@@ -35,7 +35,6 @@ const FormSchema = z.object({
 	prompt: z.string().max(100, "Keep the prompt under 100 characters"),
 });
 
-
 const styleItem: SelectType[] = [
 	{ label: "Cool", name: "COOL" },
 	{ label: "Formal", name: "FORMAL" },
@@ -49,10 +48,14 @@ const sizeItems: SelectType[] = [
 	{ label: "Long", name: "LONG" },
 ];
 
-
 export default function SelectForm() {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
+		defaultValues: {
+			style: "COOL",
+			size: "SHORT",
+			prompt: "",
+		},
 	});
 
 	function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -140,8 +143,8 @@ export default function SelectForm() {
 							<FormMessage />
 						</FormItem>
 					)}
-        />
-        {/* submit and reset button */}
+				/>
+				{/* submit and reset button */}
 				<div className="flex gap-5">
 					<Button className="font-bold text-black" type="submit">
 						Submit

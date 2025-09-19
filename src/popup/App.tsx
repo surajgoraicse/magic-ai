@@ -1,27 +1,41 @@
-import SelectForm from "@/components/MyForm";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { ApiPageForm } from "@/components/ApiPageForm";
+import Popup from "@/components/popup-ui";
+import { getApiKey } from "@/services/api";
+import { useEffect, useState } from "react";
 
 function App() {
-	const [response, setResponse] = useState("");
+	const [apiKey, setApiKey] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
-	return (
-		<div className="min-w-md flex flex-col items-center p-3  max-h-[600px]  ">
-			<h1 className="scroll-m-20 text-xl font-semibold tracking-tight mb-4">
-				Magic AI
-			</h1>
-			<SelectForm />
-			{response && <Textarea className="w-[90%]   mt-5" />}
-			<Button
-				onClick={() => {
-					setResponse("value");
-				}}
-			>
-				click
-			</Button>
-		</div>
-	);
+	useEffect(() => {
+		// run this only if apikey is not set
+		// there is a case when the api is add for first time then set is set it apikey so no need to check in that case
+		setLoading(true);
+		async function fetchKey() {
+			try {
+				const key = await getApiKey();
+				setApiKey(key);
+			} catch (error) {
+				console.log(
+					"error while fetching key from chrome storage",
+					error
+				);
+			} finally {
+				setLoading(false);
+			}
+		}
+		fetchKey();
+	}, []);
+
+	if (loading) {
+		return (
+			<div className="flex h-screen items-center justify-center">
+				Loading...
+			</div>
+		);
+	}
+
+	return apiKey ? <Popup /> : <ApiPageForm onSaveKey={setApiKey} />;
 }
 
 export default App;
