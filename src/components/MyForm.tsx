@@ -29,12 +29,7 @@ type SelectType = {
 
 const StyleSchema = z.enum(["COOL", "FORMAL", "INFORMAL", "MOTIVATIONAL"]);
 const SizeSchema = z.enum(["SHORT", "MEDIUM", "LONG"]);
-const FormSchema = z.object({
-	style: StyleSchema,
-	size: SizeSchema,
-	prompt: z.string().max(100, "Keep the prompt under 100 characters"),
-});
-
+const TypeSchema = z.enum(["COMMENT", "REPLY"]);
 const styleItem: SelectType[] = [
 	{ label: "Cool", name: "COOL" },
 	{ label: "Formal", name: "FORMAL" },
@@ -48,13 +43,28 @@ const sizeItems: SelectType[] = [
 	{ label: "Long", name: "LONG" },
 ];
 
+const typeItems: SelectType[] = [
+	{ label: "Comment", name: "COMMENT" },
+	{ label: "Reply", name: "REPLY" },
+];
+
+const FormSchema = z.object({
+	style: StyleSchema,
+	size: SizeSchema,
+	type: TypeSchema,
+	prompt: z.string().max(100, "Keep the prompt under 100 characters"),
+	context: z.string(),
+});
+
 export default function SelectForm() {
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
 			style: "COOL",
 			size: "SHORT",
+			type: "COMMENT",
 			prompt: "",
+			context: "",
 		},
 	});
 
@@ -63,6 +73,14 @@ export default function SelectForm() {
 	}
 	function handleReset() {
 		console.log("reset");
+		form.reset({
+			style: "COOL",
+			size: "SHORT",
+			type: "COMMENT",
+			prompt: "",
+			context: "",
+		});
+		form.clearErrors();
 	}
 
 	return (
@@ -80,7 +98,7 @@ export default function SelectForm() {
 								<FormLabel>Style</FormLabel>
 								<Select
 									onValueChange={field.onChange}
-									defaultValue={field.value}
+									value={field.value}
 								>
 									<FormControl>
 										<SelectTrigger>
@@ -104,18 +122,45 @@ export default function SelectForm() {
 						name="size"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Style</FormLabel>
+								<FormLabel>Size</FormLabel>
 								<Select
 									onValueChange={field.onChange}
-									defaultValue={field.value}
+									value={field.value}
 								>
 									<FormControl>
 										<SelectTrigger>
-											<SelectValue placeholder="Select Style" />
+											<SelectValue placeholder="Select Size" />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
 										{sizeItems.map((item) => (
+											<SelectItem value={item.name}>
+												{item.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="type"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Type</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									value={field.value}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select Type" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{typeItems.map((item) => (
 											<SelectItem value={item.name}>
 												{item.label}
 											</SelectItem>
@@ -135,7 +180,24 @@ export default function SelectForm() {
 							<FormLabel>Prompt</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder="Write Custom Prompt Here"
+									placeholder="Write Custom Prompt Here..."
+									className="resize-none max-h-[150px]"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="context"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Context</FormLabel>
+							<FormControl>
+								<Textarea
+									placeholder="Write Context Here..."
 									className="resize-none max-h-[150px]"
 									{...field}
 								/>
