@@ -12,6 +12,7 @@ function App() {
 		// there is a case when the api is add for first time then set is set it apikey so no need to check in that case
 		setLoading(true);
 		async function fetchKey() {
+			
 			try {
 				const key = await getApiKey();
 				setApiKey(key);

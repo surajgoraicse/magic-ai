@@ -20,6 +20,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	getSizeField,
+	getStyleField,
+	getTypeField,
+	setSizeField,
+	setStyleField,
+	setTypeField,
+} from "@/services/fields";
+import { useEffect } from "react";
+import { Spinner } from "./ui/spinner";
 import { Textarea } from "./ui/textarea";
 
 type SelectType = {
@@ -48,35 +58,61 @@ const typeItems: SelectType[] = [
 	{ label: "Reply", name: "REPLY" },
 ];
 
-const FormSchema = z.object({
+export const FormSchema = z.object({
 	style: StyleSchema,
 	size: SizeSchema,
 	type: TypeSchema,
-	prompt: z.string().max(100, "Keep the prompt under 100 characters"),
-	context: z.string(),
+	prompt: z
+		.string()
+		.max(100, "Keep the prompt under 100 characters")
+		.optional(),
+	context: z.string().min(10, "Keep the context over 10 characters"),
 });
 
-export default function SelectForm() {
+export default function SelectForm({
+	onSubmitForm,
+	loading,
+}: {
+	onSubmitForm: (data: z.infer<typeof FormSchema>) => void;
+	loading: boolean;
+}) {
+	useEffect(() => {
+		async function getFields() {
+			console.log("getting fields");
+			const style = StyleSchema.safeParse(await getStyleField());
+			if (style.success) {
+				form.setValue("style", style.data);
+			}
+
+			const size = SizeSchema.safeParse(await getSizeField());
+			if (size.success) {
+				form.setValue("size", size.data);
+			}
+
+			const type = TypeSchema.safeParse(await getTypeField());
+			if (type.success) {
+				form.setValue("type", type.data);
+			}
+		}
+		getFields();
+	}, []);
 	const form = useForm<z.infer<typeof FormSchema>>({
 		resolver: zodResolver(FormSchema),
 		defaultValues: {
 			style: "COOL",
 			size: "SHORT",
-			type: "COMMENT",
+			type: "REPLY",
 			prompt: "",
 			context: "",
 		},
 	});
 
-	function onSubmit(data: z.infer<typeof FormSchema>) {
-		console.log(data);
-	}
 	function handleReset() {
 		console.log("reset");
 		form.reset({
 			style: "COOL",
 			size: "SHORT",
-			type: "COMMENT",
+			type: "REPLY",
 			prompt: "",
 			context: "",
 		});
@@ -86,7 +122,7 @@ export default function SelectForm() {
 	return (
 		<Form {...form}>
 			<form
-				onSubmit={form.handleSubmit(onSubmit)}
+				onSubmit={form.handleSubmit(onSubmitForm)}
 				className="w-[80%] space-y-6 flex flex-col"
 			>
 				<div className="flex gap-5">
@@ -97,7 +133,10 @@ export default function SelectForm() {
 							<FormItem>
 								<FormLabel>Style</FormLabel>
 								<Select
-									onValueChange={field.onChange}
+									onValueChange={(newValue) => {
+										field.onChange(newValue);
+										setStyleField(newValue);
+									}}
 									value={field.value}
 								>
 									<FormControl>
@@ -124,7 +163,10 @@ export default function SelectForm() {
 							<FormItem>
 								<FormLabel>Size</FormLabel>
 								<Select
-									onValueChange={field.onChange}
+									onValueChange={(newValue) => {
+										field.onChange(newValue);
+										setSizeField(newValue);
+									}}
 									value={field.value}
 								>
 									<FormControl>
@@ -151,7 +193,10 @@ export default function SelectForm() {
 							<FormItem>
 								<FormLabel>Type</FormLabel>
 								<Select
-									onValueChange={field.onChange}
+									onValueChange={(newValue) => {
+										field.onChange(newValue);
+										setTypeField(newValue);
+									}}
 									value={field.value}
 								>
 									<FormControl>
@@ -172,23 +217,7 @@ export default function SelectForm() {
 						)}
 					/>
 				</div>
-				<FormField
-					control={form.control}
-					name="prompt"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Prompt</FormLabel>
-							<FormControl>
-								<Textarea
-									placeholder="Write Custom Prompt Here..."
-									className="resize-none max-h-[150px]"
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+
 				<FormField
 					control={form.control}
 					name="context"
@@ -206,14 +235,42 @@ export default function SelectForm() {
 						</FormItem>
 					)}
 				/>
+				<FormField
+					control={form.control}
+					name="prompt"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Custom Prompt</FormLabel>
+							<FormControl>
+								<Textarea
+									placeholder="Write Custom Prompt Here..."
+									className="resize-none max-h-[150px]"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				{/* submit and reset button */}
 				<div className="flex gap-5">
-					<Button className="font-bold text-black" type="submit">
-						Submit
+					<Button
+						variant={"outline"}
+						disabled={loading}
+						className="font-bold "
+						type="submit"
+					>
+						{loading ? (
+							<>
+								<Spinner /> Processing...
+							</>
+						) : (
+							"Submit"
+						)}
 					</Button>
 					<Button
-						className="font-bold text-white"
-						variant={"destructive"}
+						className="font-bold "
+						variant={"outline"}
 						onClick={handleReset}
 					>
 						Reset

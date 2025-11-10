@@ -21,22 +21,15 @@ export async function validateApiKey(apiKey: string): Promise<boolean> {
 	}
 }
 
-export async function getApiKey() :Promise<string> {
-	return new Promise((resolve, reject) => {
+export async function getApiKey(): Promise<string > {
+	return new Promise((resolve) => {
 		let ApiKey = "";
 		console.log("getting api key...");
 
 		chrome.storage.sync.get(["API"], (res) => {
 			ApiKey = res["API"];
-			if (!ApiKey) {
-				console.log("not found");
-				console.log(res.KEY);
-				console.log(res);
-				reject("");
-			} else {
-				resolve(ApiKey);
-				console.log(ApiKey);
-			}
+			console.log("value of api key ", ApiKey);
+			ApiKey ? resolve(ApiKey) : resolve("");
 		});
 	});
 }

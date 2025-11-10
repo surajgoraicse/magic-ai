@@ -1,11 +1,19 @@
-import SelectForm from "@/components/MyForm";
-import { Button } from "@/components/ui/button";
+import { getData } from "@/actions/getData";
+import SelectForm, { FormSchema } from "@/components/MyForm";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import type z from "zod";
 import { ModeToggle } from "./mode-toggle";
-
 const Popup = () => {
 	const [response, setResponse] = useState("");
+	const [loading, setLoading] = useState(false);
+	const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
+		setResponse("");
+		setLoading(true);
+		const res = await getData(data);
+		setLoading(false);
+		setResponse(res || "Something went wrong");
+	};
 	return (
 		<div className="min-w-lg flex flex-col items-center p-3  max-h-[600px]  ">
 			<div className="relative flex items-center justify-center w-full">
@@ -16,15 +24,14 @@ const Popup = () => {
 					<ModeToggle />
 				</span>
 			</div>
-			<SelectForm />
-			{response && <Textarea className="w-[90%]   mt-5" />}
-			<Button
-				onClick={() => {
-					setResponse("value");
-				}}
-			>
-				click
-			</Button>
+			<SelectForm onSubmitForm={handleSubmit} loading={loading} />
+			{response && (
+				<Textarea
+					value={response}
+					onChange={(e) => setResponse(e.target.value)}
+					className="w-[90%]   my-5"
+				/>
+			)}
 		</div>
 	);
 };
