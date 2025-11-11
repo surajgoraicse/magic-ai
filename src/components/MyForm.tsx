@@ -251,7 +251,7 @@ export default function SelectForm({
 							<FormControl>
 								<Textarea
 									placeholder="Write Context Here..."
-									className="resize-none max-h-[60px]"
+									className=" max-h-[60px]"
 									{...field}
 								/>
 							</FormControl>
@@ -268,7 +268,7 @@ export default function SelectForm({
 							<FormControl>
 								<Textarea
 									placeholder="Write Custom Prompt Here..."
-									className="resize-none max-h-[60px]"
+									className=" max-h-[60px]"
 									{...field}
 								/>
 							</FormControl>
