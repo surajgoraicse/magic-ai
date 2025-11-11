@@ -10,7 +10,6 @@ import {
 	FormControl,
 	FormField,
 	FormItem,
-	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
 import {
@@ -21,9 +20,14 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
+	clearFields,
+	getContextField,
+	getPromptField,
 	getSizeField,
 	getStyleField,
 	getTypeField,
+	setContextField,
+	setPromptField,
 	setSizeField,
 	setStyleField,
 	setTypeField,
@@ -72,9 +76,11 @@ export const FormSchema = z.object({
 export default function SelectForm({
 	onSubmitForm,
 	loading,
+	setLoading,
 }: {
 	onSubmitForm: (data: z.infer<typeof FormSchema>) => void;
 	loading: boolean;
+	setLoading: (loading: boolean) => void;
 }) {
 	useEffect(() => {
 		async function getFields() {
@@ -93,6 +99,18 @@ export default function SelectForm({
 			if (type.success) {
 				form.setValue("type", type.data);
 			}
+
+			getContextField().then((context) => {
+				if (context) {
+					form.setValue("context", context);
+				}
+			});
+
+			getPromptField().then((prompt) => {
+				if (prompt) {
+					form.setValue("prompt", prompt);
+				}
+			});
 		}
 		getFields();
 	}, []);
@@ -117,13 +135,19 @@ export default function SelectForm({
 			context: "",
 		});
 		form.clearErrors();
+		clearFields();
+		setLoading(false);
 	}
 
 	return (
 		<Form {...form}>
 			<form
-				onSubmit={form.handleSubmit(onSubmitForm)}
-				className="w-[80%] space-y-6 flex flex-col"
+				onSubmit={form.handleSubmit(() => {
+					onSubmitForm(form.getValues());
+					setContextField(form.getValues().context);
+					setPromptField(form.getValues().prompt || "");
+				})}
+				className="w-[80%] space-y-3 flex flex-col"
 			>
 				<div className="flex gap-5">
 					<FormField
@@ -131,7 +155,7 @@ export default function SelectForm({
 						name="style"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Style</FormLabel>
+								{/* <FormLabel>Style</FormLabel> */}
 								<Select
 									onValueChange={(newValue) => {
 										field.onChange(newValue);
@@ -161,7 +185,7 @@ export default function SelectForm({
 						name="size"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Size</FormLabel>
+								{/* <FormLabel>Size</FormLabel> */}
 								<Select
 									onValueChange={(newValue) => {
 										field.onChange(newValue);
@@ -191,7 +215,7 @@ export default function SelectForm({
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Type</FormLabel>
+								{/* <FormLabel>Type</FormLabel> */}
 								<Select
 									onValueChange={(newValue) => {
 										field.onChange(newValue);
@@ -223,11 +247,11 @@ export default function SelectForm({
 					name="context"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Context</FormLabel>
+							{/* <FormLabel>Context</FormLabel> */}
 							<FormControl>
 								<Textarea
 									placeholder="Write Context Here..."
-									className="resize-none max-h-[150px]"
+									className="resize-none max-h-[60px]"
 									{...field}
 								/>
 							</FormControl>
@@ -240,11 +264,11 @@ export default function SelectForm({
 					name="prompt"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Custom Prompt</FormLabel>
+							{/* <FormLabel>Custom Prompt</FormLabel> */}
 							<FormControl>
 								<Textarea
 									placeholder="Write Custom Prompt Here..."
-									className="resize-none max-h-[150px]"
+									className="resize-none max-h-[60px]"
 									{...field}
 								/>
 							</FormControl>
@@ -265,7 +289,7 @@ export default function SelectForm({
 								<Spinner /> Processing...
 							</>
 						) : (
-							"Submit"
+							"✨Generate"
 						)}
 					</Button>
 					<Button

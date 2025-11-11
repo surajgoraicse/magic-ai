@@ -1,18 +1,45 @@
 import { getData } from "@/actions/getData";
 import SelectForm, { FormSchema } from "@/components/MyForm";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { getLastResponse, setLastResponse } from "@/services/fields";
+import { useEffect, useState } from "react";
 import type z from "zod";
 import { ModeToggle } from "./mode-toggle";
 const Popup = () => {
 	const [response, setResponse] = useState("");
 	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		const fetchLastResponse = async () => {
+			const lastRes = await getLastResponse();
+			if (lastRes) {
+				setResponse(lastRes);
+			} else {
+				setResponse("");
+			}
+		};
+		fetchLastResponse();
+	}, []);
+
 	const handleSubmit = async (data: z.infer<typeof FormSchema>) => {
-		setResponse("");
-		setLoading(true);
-		const res = await getData(data);
-		setLoading(false);
-		setResponse(res || "Something went wrong");
+		try {
+			setResponse("");
+			setLoading(true);
+			const res = await getData(data);
+			setLoading(false);
+			if (res) {
+				setResponse(res);
+				setLastResponse(res);
+			} else {
+				setResponse("Something went wrong");
+				setLastResponse("");
+			}
+		} catch (error) {
+			setLoading(false);
+			console.log(error);
+			setResponse("Something went wrong");
+			setLastResponse("");
+		}
 	};
 	return (
 		<div className="min-w-lg flex flex-col items-center p-3  max-h-[600px]  ">
@@ -24,7 +51,11 @@ const Popup = () => {
 					<ModeToggle />
 				</span>
 			</div>
-			<SelectForm onSubmitForm={handleSubmit} loading={loading} />
+			<SelectForm
+				onSubmitForm={handleSubmit}
+				loading={loading}
+				setLoading={setLoading}
+			/>
 			{response && (
 				<Textarea
 					value={response}
